@@ -17,31 +17,35 @@ from oauth2client.client import GoogleCredentials
 
 #file_id = '1Xc0UXq85rzY7ZYnl-HJ5JF4nc3SuEuHq' #No Region Or Year '1i207eRSm-sQ4gGLFKhG9L5kzDVDhnLVl'
 
+class OpenDateBasedDataFrame:
+
+  def __init__(self, fileId):
+    self.file_id = fielId
 
 def authenticate():
-  # Authenticate and create the PyDrive client.
-  # This only needs to be done once per notebook.
-  auth.authenticate_user()
-  gauth = GoogleAuth()
-  gauth.credentials = GoogleCredentials.get_application_default()
-  drive = GoogleDrive(gauth)
+    # Authenticate and create the PyDrive client.
+    # This only needs to be done once per notebook.
+    auth.authenticate_user()
+    gauth = GoogleAuth()
+    gauth.credentials = GoogleCredentials.get_application_default()
+    drive = GoogleDrive(gauth)
 
+def getDataFrame(cols, filename, dateIndexColName):
+    try:
+      authenticate()
+      data_file_meta = drive.CreateFile({'id':self.file_id})
+      data_file_meta.GetContentFile(filename)
 
-def getDataFrame(fileID, cols, filename, dateIndexColName):
-  try:
-    authenticate()
-    data_file_meta = drive.CreateFile({'id':fileID})
-    data_file_meta.GetContentFile(filename)
-
-    mydateparser = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
+      mydateparser = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
+      
+      df = pd.read_csv(filename, 
+                      header=0, 
+                      parse_dates=[dateIndexColName], 
+                      date_parser=mydateparser, 
+                      index_col=[dateIndexColName],
+                      usecols=cols)
     
-    df = pd.read_csv(filename, 
-                     header=0, 
-                     parse_dates=[dateIndexColName], 
-                     date_parser=mydateparser, 
-                     index_col=[dateIndexColName],
-                     usecols=cols)
-  return df
-
-  except:
-    print('Unable to load file')
+    except:
+        print('Unable to load file')
+    finally:
+      return df
